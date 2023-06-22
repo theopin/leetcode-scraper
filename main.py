@@ -15,12 +15,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+import markdownify
+
 
 from utils import read_tracker, update_tracker, reset_configuration
 
 # Setup Selenium Webdriver
 options = webdriver.ChromeOptions()
-#options.add_argument('--headless')
+options.add_argument('--headless')
 options.add_argument('--ignore-certificate-errors-spki-list')
 options.add_argument('--ignore-ssl-errors')
 options.add_argument('--log-level=3')                   # Show only fatal errors
@@ -34,10 +36,11 @@ driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager().install(
 # Initialize Colorama
 colorama.init(autoreset=True)
 
-# Get the last problem number we stopped at from our previous download (if any) 
-completed_upto = read_tracker("tracker.conf")
+
 
 def main():
+    # Get the last problem number we stopped at from our previous download (if any) 
+    completed_upto = read_tracker("tracker.conf")
     # Leetcode API URL to get json of problems on algorithms categories
     ALGORITHMS_ENDPOINT_URL = "https://leetcode.com/api/problems/algorithms/"
 
@@ -75,6 +78,7 @@ def main():
 
 
     try:
+        print(len(questions_data))
         for i in range(completed_upto + 1, len(questions_data)):
             difficulty, frontend_question_id, question__title_slug, question__title, difficulty_level = questions_data[i]
             completed_upto = read_tracker("tracker.conf")
@@ -92,46 +96,47 @@ def main():
 
 def download_questions(question_num, url, frontend_question_id, question__title, difficulty, difficulty_level):
 
-    print(Fore.BLACK + Back.CYAN + f"Fetching problem num " + Back.YELLOW + f" {question_num} " + Back.CYAN + " with url " + Back.YELLOW + f" {url} ")
+    print(f"Fetching problem " 
+            + Fore.BLACK  + Back.YELLOW + f"num {question_num}" 
+            + Fore.RESET  + Back.RESET + " with url " 
+            + Fore.BLACK +  Back.YELLOW + f"{url}")
 
     try:
         driver.get(url)
-
-        # Wait 20 secs or until div with id initial-loading disappears
-        element = WebDriverWait(driver, 20).until(
-            EC.invisibility_of_element_located((By.ID, "initial-loading"))
+        # Wait 30 secs or until div with class '_1l1MA' appears
+        element = WebDriverWait(driver, 30).until(
+            EC.visibility_of_element_located((By.CLASS_NAME, "_1l1MA"))
         )
-
         # Get current tab page source
         html = driver.page_source
         soup = bs4.BeautifulSoup(html, "html.parser")
 
-        # Get contents of question
-        problem_html = str(soup.find("div", {"class": "content__u3I1 question-content__JfgR"}))
+        # Retrieve question content
+        content = soup.find("div", {"class": "_1l1MA"})
         
         # Get list of topics related to the problem. For example: Dynamic programming, Greedy, String etc...
-        topics = ""
-        for topic in soup.find_all("span", {"class": "tag__2PqS"}):
-            if topics == "":
-                topics = ''.join(topic.findAll(text=True))
-            else:
-                topics += ", " + ''.join(topic.findAll(text=True))
+        topics = []
+        for topic in soup.find_all("a", {"class": "mr-4 rounded-xl py-1 px-2 text-xs transition-colors text-label-2 dark:text-dark-label-2 hover:text-label-2 dark:hover:text-dark-label-2 bg-fill-3 dark:bg-dark-fill-3 hover:bg-fill-2 dark:hover:bg-dark-fill-2"}):
+            topics.append(topic.findAll(string=True)[0])
+            
 
         db_entry = { 
             "question_id": frontend_question_id, 
             "title": question__title,
             "difficulty_index": difficulty,
             "difficulty": difficulty_level,
-            "topics": topics,
-            "content": problem_html
+            "related_topics": topics,
+            "content": content
             }
 
         print(db_entry)
 
         # Update upto which the problem is downloaded
         update_tracker('track.conf', question_num)
-        print(Fore.BLACK + Back.GREEN + f"Writing problem num " + Back.YELLOW + f" {question_num} " + Back.GREEN + " with url " + Back.YELLOW + f" {url} " )
-        print(Fore.BLACK + Back.GREEN + " successfull ")
+        
+        print(f"Successfully written problem " 
+            + Fore.BLACK + Back.YELLOW + f"num {question_num}"
+            + Fore.RESET + Back.RESET + "\n")
 
     except Exception as e:
         print(Back.RED + f" Failed Writing!!  {e} ")
