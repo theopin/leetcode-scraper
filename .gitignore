@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Chromium
+.config/
+
 # C extensions
 *.so
 
