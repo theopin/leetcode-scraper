@@ -53,6 +53,7 @@ def download_questions(question_num, url, frontend_question_id, question_title, 
 
     try:
         web_driver.get(url)
+
         # Wait 30 secs or until div with class '_1l1MA' appears
         WebDriverWait(web_driver, 30).until(
             EC.visibility_of_element_located((By.CLASS_NAME, "_1l1MA"))
@@ -74,8 +75,11 @@ def download_questions(question_num, url, frontend_question_id, question_title, 
             + Fore.RESET + Back.RESET + "\n")
 
     except Exception as e:
-        print(Back.RED + f" Failed Writing!!  {e} ")
+        print(Back.RED + f"Failed to extract problem " 
+                + Fore.BLACK + Back.YELLOW + f"#{question_num}")
+        print(Back.RED + "Reason: "+ f"{e}")
         web_driver.quit()
+        exit(0)
 
 
 
