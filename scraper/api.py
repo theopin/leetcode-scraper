@@ -30,11 +30,11 @@ def synthesize_problem_json(problem_json, isToSort=True):
             # total_accepted_solutions = child["stat"]["total_acs"]
 
             # map difficulty integer values to its corresponding string values
-            difficulty_level = "hard"
+            difficulty_level = "Hard"
             if difficulty == 1:
-                difficulty_level = "easy"
+                difficulty_level = "Easy"
             elif difficulty == 2:
-                difficulty_level = "medium"
+                difficulty_level = "Medium"
 
             synthesized_problems.append((difficulty, frontend_question_id, question__title_slug, question__title, difficulty_level))
     

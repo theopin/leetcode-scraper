@@ -6,12 +6,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-import markdownify
+import time
 
 import tracker 
 import driver
 import api
 import scraper
+import markdown
 
 
 
@@ -39,6 +40,17 @@ def main():
 
             download_questions(i, url, frontend_question_id, question__title, difficulty, difficulty_level)
 
+            
+            # Sleep for 2s for each problem and 30s after every 30 problems
+            if (i - prev_extracted_questions) % 30 == 0:
+                print(f"Sleeping 1 min\n")
+                time.sleep(60)
+            else:
+                print(f"Sleeping 2 secs\n")
+                time.sleep(2)
+
+
+
     finally:
         # Close the browser after download
         web_driver.quit()
@@ -59,13 +71,16 @@ def download_questions(question_num, url, frontend_question_id, question_title, 
             EC.visibility_of_element_located((By.CLASS_NAME, "_1l1MA"))
         )
 
-        db_entry = scraper.scrape_question(web_driver.page_source)
+        data = scraper.scrape_question(web_driver.page_source)
 
-        db_entry["question_id"] = frontend_question_id
-        db_entry["title"] = question_title
-        db_entry["difficulty_index"] = difficulty
-        db_entry["difficulty"] = difficulty_level
-        
+        data["question_id"] = frontend_question_id
+        data["title"] = question_title
+        data["difficulty_index"] = difficulty
+        data["difficulty"] = difficulty_level
+
+        markdown_content = markdown.convert_to_markdown(data)
+        print(markdown_content)
+
         
         # Update upto which the problem is downloaded
         tracker.update_tracker('track.conf', question_num)

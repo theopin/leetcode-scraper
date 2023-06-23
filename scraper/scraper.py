@@ -19,14 +19,12 @@ def scrape_question(html):
     for topic in soup.find_all("a", {"class": "mr-4 rounded-xl py-1 px-2 text-xs transition-colors text-label-2 dark:text-dark-label-2 hover:text-label-2 dark:hover:text-dark-label-2 bg-fill-3 dark:bg-dark-fill-3 hover:bg-fill-2 dark:hover:bg-dark-fill-2"}):
         topics.append(topic.findAll(string=True)[0])
         
-    db_entry = {
+    data = {
         "content": convert_content_to_json(soup, content),
         "topics": topics
     }
     
-
-    print(db_entry) # TODO: Convert to markdown and append to file
-    return db_entry
+    return data
 
 
 def convert_content_to_json(soup, content):
@@ -39,17 +37,14 @@ def convert_content_to_json(soup, content):
     example_tags = content.find('strong', text='Input:')
 
     for example_tag in example_tags:
-        #print("example",example_tag.find_next('pre').children)
-        print("input", example_tag.next.text)
-        #print("output", example_tag.find_next('pre'))
         example = {
             'input': example_tag.next.text.strip('input').strip(),
             'output': example_tag.next.next.next.next.text.strip('output').strip()
         }
-        explanation_tag = example_tag.find_next('strong', class_='example')
+        explanation_tag = example_tag.next.next.next.next.next.next
     
-        if explanation_tag and explanation_tag.name == 'strong':
-            example['explanation'] = explanation_tag.find_next('pre').text.strip()
+        if explanation_tag:
+            example['explanation'] = explanation_tag.next.strip()
     
         examples.append(example)
 
