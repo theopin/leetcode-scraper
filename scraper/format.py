@@ -34,6 +34,7 @@ def convert_to_markdown(data):
     markdown += "### Constraints\n\n"
     for constraint in content['constraints']:
         markdown += f"- {constraint}\n"
+    markdown += "\n"
 
     if(content['follow_up'] != ''):
         markdown += f"\n<b>Follow-up:</b> {content['follow_up']}\n\n"

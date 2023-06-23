@@ -41,13 +41,13 @@ def main():
             download_questions(i, url, frontend_question_id, question__title, difficulty, difficulty_level)
 
             
-            # Sleep for 2s for each problem and 30s after every 30 problems
+            # Sleep for 25 for each problem and 30s after every 30 problems
             if (i - prev_extracted_questions) % 30 == 0:
-                print(f"Sleeping 1 min\n")
-                time.sleep(60)
+                print(f"Sleeping 2 mins\n")
+                time.sleep(120)
             else:
-                print(f"Sleeping 2 secs\n")
-                time.sleep(2)
+                print(f"Sleeping 5 secs\n")
+                time.sleep(5)
 
 
 

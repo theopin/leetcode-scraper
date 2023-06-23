@@ -28,24 +28,34 @@ def scrape_question(html):
 
 
 def convert_content_to_json(soup, content):
-
     # Extract description
-    description = content.find('p').text.replace('\xa0', " ")
+    description = ""
+    description_set = content.find_all('p')
+
+    for i in range(0, len(description_set)):
+        if(description_set[i].text.strip() == ""):
+            break
+        description += description_set[i].text.replace('\xa0', " ") + "\n\n"
+    description = description.rstrip()
 
     # Extract examples
     examples = []
-    example_tags = content.find('strong', text='Input:')
+    example_tags = content.find_all("pre")
 
-    for example_tag in example_tags:
+    for i in range(0, len(example_tags)):
+        if (not example_tags[i].text.startswith("Input")):
+            continue
+        
+        text = example_tags[i].text.split("\n")
+        input_text = text[0].strip("Input:").strip()
+        output_text = text[1].strip("Output:").strip()
         example = {
-            'input': example_tag.next.text.strip('input').strip(),
-            'output': example_tag.next.next.next.next.text.strip('output').strip()
+            'input': input_text,
+            'output': output_text
         }
-        explanation_tag = example_tag.next.next.next.next.next.next
-    
-        if explanation_tag:
-            example['explanation'] = explanation_tag.next.strip()
-    
+        if text[2] != '':
+            example["explanation"] = text[2].strip("Explanation:").strip()
+
         examples.append(example)
 
     # Extract constraints
