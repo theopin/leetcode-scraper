@@ -12,7 +12,7 @@ import tracker
 import driver
 import api
 import scraper
-import markdown
+import format
 
 
 
@@ -77,13 +77,14 @@ def download_questions(question_num, url, frontend_question_id, question_title, 
         data["title"] = question_title
         data["difficulty_index"] = difficulty
         data["difficulty"] = difficulty_level
+        data["url"] = url
 
-        markdown_content = markdown.convert_to_markdown(data)
+        markdown_content = format.convert_to_markdown(data)
         print(markdown_content)
 
         
         # Update upto which the problem is downloaded
-        tracker.update_tracker('track.conf', question_num)
+        tracker.update_tracker('tracker.conf', question_num)
         
         print(f"Successfully extracted problem " 
             + Fore.BLACK + Back.YELLOW + f"#{question_num}"
