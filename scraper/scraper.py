@@ -5,11 +5,53 @@
 
 import bs4
 
+import driver
+
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
+web_driver = None
+
+def create_web_driver():
+    global web_driver
+    web_driver = driver.create_driver()
+
+def quit_web_driver():
+    global web_driver
+    web_driver.quit()
+
+
+def scrape_question(question_num, question_api_data):
+    print(f"Fetching problem " + f"#{question_num}")
+
+    try:
+        web_driver.get(question_api_data["url"])
+
+        # Wait 30 secs or until div with class '_1l1MA' appears
+        WebDriverWait(web_driver, 30).until(
+            EC.visibility_of_element_located((By.CLASS_NAME, "_1l1MA"))
+        )
+
+        scraped_data = format_scraped_question(web_driver.page_source, question_api_data)
+
+        print(f"Successfully extracted problem " + f"#{question_num}\n")
+
+        return scraped_data
+
+        
+
+    except Exception as e:
+        print(f"Failed to extract problem "+ f"#{question_num}")
+        print("Reason: "+ f"{e}")
+        web_driver.quit()
+        exit(0)
+
 
 # Tracks the questions we have already downloaded
-def scrape_question(html):
+def format_scraped_question(page_source, question_api_data):
 
-    soup = bs4.BeautifulSoup(html, "html.parser")
+    soup = bs4.BeautifulSoup(page_source, "html.parser")
 
     # Retrieve question content
     content = soup.find("div", class_="_1l1MA")
@@ -19,12 +61,14 @@ def scrape_question(html):
     for topic in soup.find_all("a", {"class": "mr-4 rounded-xl py-1 px-2 text-xs transition-colors text-label-2 dark:text-dark-label-2 hover:text-label-2 dark:hover:text-dark-label-2 bg-fill-3 dark:bg-dark-fill-3 hover:bg-fill-2 dark:hover:bg-dark-fill-2"}):
         topics.append(topic.findAll(string=True)[0])
         
-    data = {
+    scraped_data = {
         "content": convert_content_to_json(soup, content),
         "topics": topics
     }
+
+    scraped_data.update(question_api_data)
     
-    return data
+    return scraped_data
 
 
 def convert_content_to_json(soup, content):

@@ -5,15 +5,18 @@
 
 def convert_to_markdown(data):
     markdown = f"## {data['title']} "
-    markdown += f"[#{data['question_id']}](" + f"{data['url']}" + ") "   
+    markdown += f"[#{data['id']}](" + f"{data['url']}" + ") "   
 
     difficulty = data['difficulty']
-
-    chip_color = '#ff0000'  # Red
-    if difficulty == 'Easy':
-        chip_color = '#00ff00'  # Green
-    elif difficulty == 'Medium':
-        chip_color = '#ffff00'  # Yellow
+    chip_color = ""
+    
+    match data['difficulty_index']:
+        case 1:
+            chip_color = '#00ff00'  # Green
+        case 2:
+            chip_color = '#ffff00'  # Yellow
+        case 3:
+            chip_color = '#ff0000'  # Red
 
     markdown += f'\n\n<span style="display: inline-block; padding: 3px 10px; border-radius: 20px; background-color: {chip_color}; color: #333; font-size: 14px; margin-right: 5px; max-width: 200px;">{difficulty}</span>'
     
@@ -39,22 +42,29 @@ def convert_to_markdown(data):
     if(content['follow_up'] != ''):
         markdown += f"\n<b>Follow-up:</b> {content['follow_up']}\n\n"
 
-    markdown += "### Proposed Solution - Python"  + "\n\n"
-    markdown += "<pre>" + "# Python solution code here"
-    markdown += "</pre>\n\n"
-
-    markdown += "### Proposed Solution - Java" + "\n\n"
-    markdown += "<pre>" + "// Java solution code here"
-    markdown += "</pre>\n\n"
-
-    markdown += "### Solution Explanation\n\n"
-    markdown += "Explain the approach and reasoning behind the proposed solution. Add any additional details or insights related to the problem."
-    markdown += "\n\n"
-
-    markdown += "### Complexity Analysis\n\n"
-    markdown += "- Time complexity: Please input the time complexity of the solution and an explanation for your choice."
-    markdown += "\n\n"
+    markdown += create_solution_space()
 
     return markdown
+
+def create_solution_space():
+    solution_space = ""
+
+    solution_space += "### Proposed Solution - Python"  + "\n\n"
+    solution_space += "<pre>" + "# Python solution code here"
+    solution_space += "</pre>\n\n"
+
+    solution_space += "### Proposed Solution - Java" + "\n\n"
+    solution_space += "<pre>" + "// Java solution code here"
+    solution_space += "</pre>\n\n"
+
+    solution_space += "### Solution Explanation\n\n"
+    solution_space += "Explain the approach and reasoning behind the proposed solution. Add any additional details or insights related to the problem."
+    solution_space += "\n\n"
+
+    solution_space += "### Complexity Analysis\n\n"
+    solution_space += "- Time complexity: Please input the time complexity of the solution and an explanation for your choice."
+    solution_space += "\n\n"
+
+    return solution_space
 
 

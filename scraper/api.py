@@ -43,3 +43,18 @@ def synthesize_problem_json(problem_json, isToSort=True):
         synthesized_problems = sorted(synthesized_problems, key=lambda x: (x[0], x[1]))
 
     return synthesized_problems
+
+
+def format_question_api_data(question_data, leetcode_url):
+
+    difficulty, frontend_question_id, question__title_slug, question__title, difficulty_level = question_data
+
+    question_api_data = {
+            "id": frontend_question_id,
+            "title": question__title,
+            "difficulty": difficulty_level,
+            "difficulty_index": difficulty,
+            "url": leetcode_url + question__title_slug           
+        }
+    
+    return question_api_data
