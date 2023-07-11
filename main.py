@@ -2,65 +2,39 @@
 from dotenv import load_dotenv
 from flask import Flask, request
 
-
-import time
 import os
+import json
+import traceback
 
-import api
-import scraper
+import leetcode.process 
 
 scraper_app = Flask(__name__)
 
 load_dotenv()
 
-LEETCODE_URL = os.getenv("LEETCODE_URL") or "https://leetcode.com/problems/"
 PORT = os.getenv("PORT") or 3000
 
-
 @scraper_app.route("/", methods = ['GET']) 
-def run_scrape_operation():
-    response = {
-            "status" : "success",
-        }
+def leetcode_scrape():
+    response = {}
+    response_code = 200
+
     try:   
+        response = leetcode.process.run_scraper(request.args)
+        response["status"] = "success"
     
-        question_start_index = int(request.headers["index"])
-        question_quantity = int(request.headers["quantity"])
-
-
-        scraper.create_web_driver()
-
-        problem_json = api.obtain_problem_json()
-        synthesized_problems = api.synthesize_problem_json(problem_json, LEETCODE_URL)    
-
-        scraped_data_list = []
-
-        upper_limit = min(question_start_index + question_quantity, len(synthesized_problems))
-        for i in range(question_start_index, upper_limit):
-
-                scraped_data = scraper.scrape_question(i, synthesized_problems[i])
-
-                        
-                if (i != question_start_index) and ((i - question_start_index) % 30 == 0):
-                    print(f"30 Questions scraped! Sleeping 20s\n")
-                    time.sleep(20)
-                else:
-                    print(f"Sleeping 1 secs\n")
-                    time.sleep(1)
-                
-                scraped_data_list.append(scraped_data)
-
-        response["data"] = {
-                "questions": scraped_data_list,
-                "count": len(scraped_data_list)
-        }
-    except Exception as e:
+    except Exception as error:
+        print(traceback.format_exc())
+        print("LOLOLOL", error)
         response["status"] = "error"
-        response["message"] = f"{e}"
+        response["message"] = f"{error.args[0]}"
+        response_code = error.args[1]
 
     finally:
-        scraper.quit_web_driver()
-        return response
+        leetcode.process.complete_scrape()
+        
+        return json.dumps(response, indent=4), response_code
+
          
 
 scraper_app.run(port=PORT)

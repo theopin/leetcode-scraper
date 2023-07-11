@@ -5,7 +5,7 @@
 
 import bs4
 
-import driver
+import commons.driver as driver
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,7 +19,9 @@ def create_web_driver():
 
 def quit_web_driver():
     global web_driver
-    web_driver.quit()
+
+    if web_driver:
+        web_driver.quit()
 
 
 def scrape_question(question_num, question_api_data):

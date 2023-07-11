@@ -8,6 +8,7 @@ import json
 
 # Leetcode API URL to get json of problems on algorithms categories
 ALGORITHMS_ENDPOINT_URL = "https://leetcode.com/api/problems/algorithms/"
+LEETCODE_URL_BASE = "https://leetcode.com/problems/"
 
 
 # Tracks the questions we have already downloaded
@@ -17,7 +18,7 @@ def obtain_problem_json():
 
 
  # Creates a list to store questions partial information retrieved from API
-def synthesize_problem_json(problem_json, leetcode_url, isToSort=True):
+def synthesize_problem_json(problem_json, isToSort=True):
     synthesized_problems = []
     for child in problem_json["stat_status_pairs"]:
 
@@ -27,7 +28,7 @@ def synthesize_problem_json(problem_json, leetcode_url, isToSort=True):
                 "id": child["stat"]["question_id"],
                 "title": child["stat"]["question__title"],
                 "difficulty_index": child["difficulty"]["level"],
-                "url": leetcode_url + child["stat"]["question__title_slug"],
+                "url": LEETCODE_URL_BASE + child["stat"]["question__title_slug"],
                 "total_acs": child["stat"]["total_acs"]
             }
 
