@@ -11,6 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
+web_driver = None
 
 def create_web_driver():
     global web_driver
@@ -24,27 +25,21 @@ def quit_web_driver():
 def scrape_question(question_num, question_api_data):
     print(f"Fetching problem " + f"#{question_num}")
 
-    try:
-        web_driver.get(question_api_data["url"])
 
-        # Wait 30 secs or until div with class '_1l1MA' appears
-        WebDriverWait(web_driver, 30).until(
-            EC.visibility_of_element_located((By.CLASS_NAME, "_1l1MA"))
-        )
+    web_driver.get(question_api_data["url"])
 
-        scraped_data = format_scraped_question(web_driver.page_source, question_api_data)
+    # Wait 30 secs or until div with class '_1l1MA' appears
+    WebDriverWait(web_driver, 30).until(
+        EC.visibility_of_element_located((By.CLASS_NAME, "_1l1MA"))
+    )
 
-        print(f"Successfully extracted problem " + f"#{question_num}\n")
+    scraped_data = format_scraped_question(web_driver.page_source, question_api_data)
 
-        return scraped_data
+    print(f"Successfully extracted problem " + f"#{question_num}\n")
 
-        
+    return scraped_data
 
-    except Exception as e:
-        print(f"Failed to extract problem "+ f"#{question_num}")
-        print("Reason: "+ f"{e}")
-        web_driver.quit()
-        exit(0)
+    
 
 
 # Tracks the questions we have already downloaded
