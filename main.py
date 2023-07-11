@@ -17,8 +17,6 @@ LEETCODE_URL = os.getenv("LEETCODE_URL") or "https://leetcode.com/problems/"
 PORT = os.getenv("PORT") or 3000
 
 
-
-
 @scraper_app.route("/", methods = ['GET']) 
 def run_scrape_operation():
     response = {
@@ -43,7 +41,6 @@ def run_scrape_operation():
                 scraped_data = scraper.scrape_question(i, synthesized_problems[i])
 
                         
-                # Sleep for 25 for each problem and 30s after every 30 problems
                 if (i != question_start_index) and ((i - question_start_index) % 30 == 0):
                     print(f"30 Questions scraped! Sleeping 20s\n")
                     time.sleep(20)
