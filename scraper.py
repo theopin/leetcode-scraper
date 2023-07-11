@@ -43,32 +43,34 @@ def scrape_question(question_num, question_api_data):
 
 
 # Tracks the questions we have already downloaded
-def format_scraped_question(page_source, question_api_data):
+def format_scraped_question(page_source, question_details):
 
     soup = bs4.BeautifulSoup(page_source, "html.parser")
 
     # Retrieve question content
-    content = soup.find("div", class_="_1l1MA")
+    question_content = soup.find("div", class_="_1l1MA")
     
     # Get list of topics related to the problem. For example: Dynamic programming, Greedy, String etc...
     topics = []
     for topic in soup.find_all("a", {"class": "mr-4 rounded-xl py-1 px-2 text-xs transition-colors text-label-2 dark:text-dark-label-2 hover:text-label-2 dark:hover:text-dark-label-2 bg-fill-3 dark:bg-dark-fill-3 hover:bg-fill-2 dark:hover:bg-dark-fill-2"}):
         topics.append(topic.findAll(string=True)[0])
-        
-    scraped_data = {
-        "content": convert_content_to_json(soup, content),
+
+    question_details.update({
         "topics": topics
+    })
+
+    scraped_data = {
+        "contents": convert_content_to_json(question_content),
+        "details": question_details
     }
 
-    scraped_data.update(question_api_data)
-    
     return scraped_data
 
 
-def convert_content_to_json(soup, content):
+def convert_content_to_json(question_content):
     # Extract description
     description = ""
-    description_set = content.find_all('p')
+    description_set = question_content.find_all('p')
 
     for i in range(0, len(description_set)):
         if(description_set[i].text.strip() == ""):
@@ -78,7 +80,7 @@ def convert_content_to_json(soup, content):
 
     # Extract examples
     examples = []
-    example_tags = content.find_all("pre")
+    example_tags = question_content.find_all("pre")
 
     for i in range(0, len(example_tags)):
         if (not example_tags[i].text.startswith("Input")):
@@ -98,14 +100,14 @@ def convert_content_to_json(soup, content):
 
     # Extract constraints
     constraints = []
-    constraint_tags = content.find('strong', text='Constraints:').find_next('ul').find_all('li')
+    constraint_tags = question_content.find('strong', text='Constraints:').find_next('ul').find_all('li')
 
     for constraint_tag in constraint_tags:
         constraints.append(constraint_tag.text.replace('\xa0', " ").strip())
 
     # Extract follow-up
     follow_up = ''
-    follow_up_div = content.find('strong', text='Follow-up: ')
+    follow_up_div = question_content.find('strong', text='Follow-up: ')
     if follow_up_div:
         follow_up_siblings = follow_up_div.next_siblings
         for sibling in follow_up_siblings:

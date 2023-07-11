@@ -25,16 +25,14 @@ def run_scrape_operation():
     scraper.create_web_driver()
 
     problem_json = api.obtain_problem_json()
-    synthesized_problems = api.synthesize_problem_json(problem_json)    
+    synthesized_problems = api.synthesize_problem_json(problem_json, LEETCODE_URL)    
 
     scraped_data_list = []
 
     #for i in range(question_start_index - 1, len(synthesized_problems)):
     for i in range(question_start_index - 1, question_start_index + 5):
         try:
-            question_api_data = api.format_question_api_data(synthesized_problems[i], LEETCODE_URL)
-
-            scraped_data = scraper.scrape_question(i, question_api_data)
+            scraped_data = scraper.scrape_question(i, synthesized_problems[i])
 
                     
             # Sleep for 25 for each problem and 30s after every 30 problems
