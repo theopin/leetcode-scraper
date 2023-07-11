@@ -1,6 +1,6 @@
 
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, request
 
 
 import time
@@ -16,12 +16,17 @@ load_dotenv()
 LEETCODE_URL = os.getenv("LEETCODE_URL") or "https://leetcode.com/problems/"
 PORT = os.getenv("PORT") or 3000
 
-# Get the last problem number we stopped at from our previous download (if any) 
-question_start_index = 1 
 
 
-@scraper_app.route("/") 
+
+@scraper_app.route("/", methods = ['GET']) 
 def run_scrape_operation():
+    
+    
+    question_start_index = int(request.headers["index"])
+    question_quantity = int(request.headers["quantity"])
+
+
     scraper.create_web_driver()
 
     problem_json = api.obtain_problem_json()
@@ -29,8 +34,8 @@ def run_scrape_operation():
 
     scraped_data_list = []
 
-    #for i in range(question_start_index - 1, len(synthesized_problems)):
-    for i in range(question_start_index - 1, question_start_index + 5):
+    upper_limit = min(question_start_index + question_quantity, len(synthesized_problems))
+    for i in range(question_start_index, upper_limit):
         try:
             scraped_data = scraper.scrape_question(i, synthesized_problems[i])
 
@@ -59,7 +64,8 @@ def run_scrape_operation():
     return {
         "status": "success",
         "data": {
-            "questions": scraped_data_list
+            "questions": scraped_data_list,
+            "count": len(scraped_data_list)
         }
     }
     
