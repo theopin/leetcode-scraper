@@ -6,7 +6,6 @@ import os
 
 import api
 import scraper
-import writer
 
 load_dotenv()
 
@@ -28,12 +27,7 @@ def main():
 
         scraped_data = scraper.scrape_question(i, question_api_data)
 
-        markdown_content = writer.convert_to_markdown(scraped_data)
-        print(markdown_content)
-
                 
-        
-
         # Sleep for 25 for each problem and 30s after every 30 problems
         if (i != question_start_index) and ((i - question_start_index) % 30 == 0):
             print(f"30 Questions scraped! Sleeping 20s\n")
