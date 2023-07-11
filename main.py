@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from flask import Flask, request
 
 import os
-import json
 import traceback
 
 import leetcode.process 
@@ -25,7 +24,7 @@ def leetcode_scrape():
     
     except Exception as error:
         print(traceback.format_exc())
-        print("LOLOLOL", error)
+        
         response["status"] = "error"
         response["message"] = f"{error.args[0]}"
         response_code = error.args[1]
@@ -33,7 +32,7 @@ def leetcode_scrape():
     finally:
         leetcode.process.complete_scrape()
         
-        return json.dumps(response, indent=4), response_code
+        return response, response_code
 
          
 
