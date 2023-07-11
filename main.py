@@ -5,7 +5,7 @@ from flask import Flask, request
 import os
 import traceback
 
-import leetcode.process 
+import leetcode.process
 
 scraper_app = Flask(__name__)
 
@@ -24,7 +24,6 @@ def leetcode_scrape():
     
     except Exception as error:
         print(traceback.format_exc())
-        
         response["status"] = "error"
         response["message"] = f"{error.args[0]}"
         response_code = error.args[1]
